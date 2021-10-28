@@ -105,7 +105,14 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-    // Set up data (with image!)
+    // Set up data (with image!) //now the send data contains image, hence header content type can not be aplication/json
+    //Instead it has to be 'multipart/form-data' that we set on form when multiple type of data
+    //This we can achieve using 'formData' provided by inbuilt javascript to mimic a form 
+    //It automatically sets the type to multipart/form-data when it sees multi type of data and we do not need to set it manually
+    const formData = new FormData();
+    formData.append('title', postData.title);
+    formData.append('content', postData.content);
+    formData.append('image', postData.image);
     let url = 'http://localhost:8080/feed/post';
     let method = 'POST';
     if (this.state.editPost) {
@@ -114,13 +121,14 @@ class Feed extends Component {
 
     fetch(url, {
       method: method,
-      headers: {
-        'Content-Type' : 'application/json'
-      },
-      body: JSON.stringify({
-        title: postData.title,
-        content: postData.content
-      })
+      // headers: {
+      //   'Content-Type' : 'application/json'
+      // },
+      // body: JSON.stringify({
+      //   title: postData.title,
+      //   content: postData.content
+      // })
+      body: formData
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
