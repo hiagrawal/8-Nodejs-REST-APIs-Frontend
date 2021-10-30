@@ -43,8 +43,10 @@ class Feed extends Component {
     const socket = openSocket('http://localhost:8080', { transports : ['websocket'] });
     //for some reason the default transportation method is not always allowed by all servers. 
     //So specify a neutral transportation method at the client side, like this: { transports : ['websocket'] }
-    socket.on('postCreatedEvent', data=> {
+    socket.on('postEvent', data=> {
       if(data.action == 'create'){
+        this.addPost(data.post);
+      }else if(data.action == 'update'){
         this.addPost(data.post);
       }
     })
@@ -65,6 +67,19 @@ class Feed extends Component {
       };
     });
     
+  };
+
+  updatePost = post => {
+    this.setState(prevState => {
+      const updatedPosts = [...prevState.posts];
+      const updatedPostIndex = updatedPosts.findIndex(p => p._id === post._id);
+      if (updatedPostIndex > -1) {
+        updatedPosts[updatedPostIndex] = post;
+      }
+      return {
+        posts: updatedPosts
+      };
+    });
   };
 
   loadPosts = direction => {
@@ -198,15 +213,7 @@ class Feed extends Component {
           createdAt: resData.post.createdAt
         };
         this.setState(prevState => {
-          let updatedPosts = [...prevState.posts];
-          if (prevState.editPost) {
-            const postIndex = prevState.posts.findIndex(
-              p => p._id === prevState.editPost._id
-            );
-            updatedPosts[postIndex] = post;
-          } 
           return {
-            posts: updatedPosts,
             isEditing: false,
             editPost: null,
             editLoading: false
