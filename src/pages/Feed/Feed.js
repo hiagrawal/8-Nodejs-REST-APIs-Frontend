@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import openSocket from 'socket.io-client';
 
 import Post from '../../components/Feed/Post/Post';
 import Button from '../../components/Button/Button';
@@ -39,6 +40,9 @@ class Feed extends Component {
       .catch(this.catchError);
 
     this.loadPosts();
+    openSocket('http://localhost:8080', { transports : ['websocket'] });
+    //for some reason the default transportation method is not always allowed by all servers. 
+    //So specify a neutral transportation method at the client side, like this: { transports : ['websocket'] }
   }
 
   loadPosts = direction => {
